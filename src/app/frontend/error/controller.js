@@ -65,6 +65,30 @@ export class InternalErrorController {
 
   /**
    * @export
+   * @return {boolean}
+   */
+  isKnownError() {
+    return !(this.isInternalError_() || !this.hasErrorCode_());
+  }
+
+  /**
+   * @return {boolean}
+   * @private
+   */
+  isInternalError_() {
+    return this.error && angular.isNumber(this.error.status) && this.error.status >= 500;
+  }
+
+  /**
+   * @return {boolean}
+   * @private
+   */
+  hasErrorCode_() {
+    return !!(this.error && this.error.status);
+  }
+
+  /**
+   * @export
    * @return {string}
    */
   getErrorData() {
@@ -87,11 +111,9 @@ export class InternalErrorController {
         `issue. It is a good place to use numbered list. -->\n\n\n##### Environment\n\`\`\`\n` +
         `Installation method: \nKubernetes version:\nDashboard version: ` +
         `${this.dashboardVersion_}\nCommit: ${
-                                              this.gitCommit_
-                                            }\n\`\`\`\n\n\n##### Observed result\n` +
+                   this.gitCommit_}\n\`\`\`\n\n\n##### Observed result\n` +
         `Dashboard reported ${this.getErrorStatus()}:\n\`\`\`\n${
-                                                                 this.getErrorData()
-                                                               }\n\`\`\`\n\n\n` +
+                   this.getErrorData()}\n\`\`\`\n\n\n` +
         `##### Comments\n<!-- If you have any comments or more details, put them here. -->`;
     return `https://github.com/kubernetes/dashboard/issues/new?title=${encodeURIComponent(title)}` +
         `&body=${encodeURIComponent(body)}`;

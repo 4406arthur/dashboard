@@ -18,7 +18,17 @@ import (
 	"errors"
 	"strings"
 
+	jose "gopkg.in/square/go-jose.v2"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
+)
+
+// Errors that can be used directly without localizing
+const (
+	MSG_DEPLOY_NAMESPACE_MISMATCH_ERROR    = "MSG_DEPLOY_NAMESPACE_MISMATCH_ERROR"
+	MSG_DEPLOY_EMPTY_NAMESPACE_ERROR       = "MSG_DEPLOY_EMPTY_NAMESPACE_ERROR"
+	MSG_LOGIN_UNAUTHORIZED_ERROR           = "MSG_LOGIN_UNAUTHORIZED_ERROR"
+	MSG_ENCRYPTION_KEY_CHANGED             = "MSG_ENCRYPTION_KEY_CHANGED"
+	MSG_DASHBOARD_EXCLUSIVE_RESOURCE_ERROR = "MSG_DASHBOARD_EXCLUSIVE_RESOURCE_ERROR"
 )
 
 // This file contains all errors that should be kept in sync with:
@@ -28,10 +38,12 @@ import (
 // Key - unique partial string that can be used to differentiate error messages
 // Value - unique error code string that frontend can use to localize error message created using
 // 		   pattern MSG_<VIEW>_<CAUSE_OF_ERROR>_ERROR
+//		   <VIEW> - optional
 var partialsToErrorsMap = map[string]string{
-	"does not match the namespace":                               "MSG_DEPLOY_NAMESPACE_MISMATCH_ERROR",
-	"empty namespace may not be set":                             "MSG_DEPLOY_EMPTY_NAMESPACE_ERROR",
-	"the server has asked for the client to provide credentials": "MSG_LOGIN_UNAUTHORIZED_ERROR",
+	"does not match the namespace":                               MSG_DEPLOY_NAMESPACE_MISMATCH_ERROR,
+	"empty namespace may not be set":                             MSG_DEPLOY_EMPTY_NAMESPACE_ERROR,
+	"the server has asked for the client to provide credentials": MSG_LOGIN_UNAUTHORIZED_ERROR,
+	jose.ErrCryptoFailure.Error():                                MSG_ENCRYPTION_KEY_CHANGED,
 }
 
 // LocalizeError returns error code (string) that can be used by frontend to localize error message.

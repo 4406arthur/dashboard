@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import chromeModule from 'chrome/module';
+import chromeModule from '../chrome/module';
 
 import {stateName, StateParams} from './state';
 import stateConfig from './stateconfig';
@@ -34,10 +34,15 @@ export default angular
  * Configures event catchers for the error views.
  *
  * @param {!kdUiRouter.$state} $state
+ * @param {!../common/errorhandling/localizer_service.LocalizerService} localizerService
  * @ngInject
  */
-function errorConfig($state) {
+function errorConfig($state, localizerService) {
   $state.defaultErrorHandler((err) => {
+    if (err.detail && err.detail.data) {
+      err.detail.data = localizerService.localize(err.detail.data);
+    }
+
     $state.go(stateName, new StateParams(err.detail, $state.params.namespace));
   });
 }

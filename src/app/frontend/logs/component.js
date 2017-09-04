@@ -348,45 +348,6 @@ export class LogsController {
     this.logsService.setShowTimestamp();
     this.logsSet = this.formatAllLogs_(this.podLogs.logs);
   }
-
-  /**
-   * Find Pod by name.
-   * Return object or undefined if can not find an object.
-   * @param {!Array<!backendApi.ReplicationControllerPodWithContainers>} array
-   * @param {!string} name
-   * @return {!backendApi.ReplicationControllerPodWithContainers|undefined}
-   * @private
-   */
-  findPodByName_(array, name) {
-    for (let i = 0; i < array.length; i++) {
-      if (array[i].name === name) {
-        return array[i];
-      }
-    }
-    return undefined;
-  }
-
-  /**
-   * Find Container by name.
-   * Return object or undefined if can not find an object.
-   * @param {!Array<!backendApi.PodContainer>} array
-   * @param {string} name
-   * @return {!backendApi.PodContainer}
-   * @private
-   */
-  initializeContainer_(array, name) {
-    let container = undefined;
-    for (let i = 0; i < array.length; i++) {
-      if (array[i].name === name) {
-        container = array[i];
-        break;
-      }
-    }
-    if (!container) {
-      container = array[0];
-    }
-    return container;
-  }
 }
 
 /**
@@ -408,7 +369,9 @@ export const logsComponent = {
 const i18n = {
   /** @export {string} @desc Text for logs card zerostate in logs page. */
   MSG_LOGS_ZEROSTATE_TEXT: goog.getMsg('The selected container has not logged any messages yet.'),
-  /** @export {string} @desc Error dialog indicating that parts of the log file is missing due to memory constraints. */
+  /**
+     @export {string} @desc Error dialog indicating that parts of the log file is missing due to memory constraints.
+   */
   MSG_LOGS_TRUNCATED_WARNING:
       goog.getMsg('The middle part of the log file cannot be loaded, because it is too big.'),
 };

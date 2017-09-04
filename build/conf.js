@@ -81,6 +81,17 @@ export default {
   containerRegistry: containerRegistry,
 
   /**
+   * Constants used by our build system.
+   */
+  build: {
+    /**
+     * Variables used to differentiate between production and development build.
+     */
+    production: 'production',
+    development: 'development',
+  },
+
+  /**
    * Backend application constants.
    */
   backend: {
@@ -95,10 +106,11 @@ export default {
     /**
      * Names of all backend packages prefixed with 'test' command.
      */
-    testCommandArgs: [
-      'test',
-      'github.com/kubernetes/dashboard/src/app/backend/...',
-    ],
+    testCommandArgs:
+        [
+          'test',
+          'github.com/kubernetes/dashboard/src/app/backend/...',
+        ],
     /**
      * Insecure port number of the backend server. Only used during development.
      */
@@ -123,8 +135,9 @@ export default {
      * Address for the Heapster API server. If blank, the dashboard
      * will attempt to connect to Heapster via a service proxy.
      */
-    heapsterServerHost:
-        gulpUtil.env.heapsterServerHost !== undefined ? gulpUtil.env.heapsterServerHost : '',
+    heapsterServerHost: gulpUtil.env.heapsterServerHost !== undefined ?
+        gulpUtil.env.heapsterServerHost :
+        '',
     /**
      * File containing the default x509 Certificate for HTTPS.
      */
@@ -133,11 +146,6 @@ export default {
      * File containing the default x509 private key matching --tlsCert.
      */
     tlsKey: gulpUtil.env.tlsKey !== undefined ? gulpUtil.env.tlsKey : '',
-    /**
-     * Variables used to differentiate between prod and dev build.
-     */
-    production: 'prod',
-    development: 'dev',
   },
 
   /**
@@ -227,10 +235,10 @@ export default {
     base: basePath,
     backendSrc: path.join(basePath, 'src/app/backend'),
     backendTmp: path.join(basePath, '.tmp/backend'),
-    backendTmpSrc:
-        path.join(basePath, '.tmp/backend/src/github.com/kubernetes/dashboard/src/app/backend'),
-    backendTmpSrcVendor:
-        path.join(basePath, '.tmp/backend/src/github.com/kubernetes/dashboard/vendor'),
+    backendTmpSrc: path.join(
+        basePath, '.tmp/backend/src/github.com/kubernetes/dashboard/src/app/backend'),
+    backendTmpSrcVendor: path.join(
+        basePath, '.tmp/backend/src/github.com/kubernetes/dashboard/vendor'),
     backendVendor: path.join(basePath, 'vendor'),
     bowerComponents: path.join(basePath, 'bower_components'),
     build: path.join(basePath, 'build'),
