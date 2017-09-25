@@ -12,17 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {stateName as overview} from '../overview/state';
+
+/**
+ * @const {number}
+ */
+const REDIRECT_TIMEOUT = 3000;
+
 /**
  * @final
  */
 export class InternalErrorController {
   /**
    * @param {!kdUiRouter.$transition$} $transition$
-   * * @param {!./../chrome/nav/nav_service.NavService} kdNavService
-   *   @param {!../common/appconfig/service.AppConfigService} kdAppConfigService
+   * @param {!./../chrome/nav/nav_service.NavService} kdNavService
+   * @param {!../common/appconfig/service.AppConfigService} kdAppConfigService
+   * @param {!../common/errorhandling/localizer_service.LocalizerService} localizerService
+   * @param {!./../common/history/service.HistoryService} kdHistoryService
    * @ngInject
    */
-  constructor($transition$, kdNavService, kdAppConfigService) {
+  constructor($transition$, kdNavService, kdAppConfigService, localizerService, kdHistoryService) {
     /** @export {!angular.$http.Response} */
     this.error = $transition$.params().error;
 
@@ -32,9 +41,7 @@ export class InternalErrorController {
     /** @export */
     this.i18n = i18n;
 
-    /**
-     * Hide side menu while entering internal error page.
-     */
+    /** Hide side menu while entering internal error page. */
     this.kdNavService_.setVisibility(false);
 
     /** @private {string} */
@@ -42,6 +49,29 @@ export class InternalErrorController {
 
     /** @private {string} */
     this.gitCommit_ = kdAppConfigService.getGitCommit();
+
+    /** @private {!../common/errorhandling/localizer_service.LocalizerService} */
+    this.localizerService_ = localizerService;
+
+    /** @private {!./../common/history/service.HistoryService} */
+    this.kdHistoryService_ = kdHistoryService;
+  }
+
+  $onInit() {
+    if (this.isNotFoundError()) {
+      setTimeout(() => {
+        this.kdHistoryService_.back(overview);
+        this.kdNavService_.setVisibility(true);
+      }, REDIRECT_TIMEOUT);
+    }
+  }
+
+  /**
+   * @export
+   * @return {boolean}
+   */
+  isNotFoundError() {
+    return this.error && angular.isNumber(this.error.status) && this.error.status === 404;
   }
 
   /**
@@ -93,7 +123,7 @@ export class InternalErrorController {
    */
   getErrorData() {
     if (this.error && this.error.data && this.error.data.length > 0) {
-      return this.error.data;
+      return this.localizerService_.localize(this.error.data);
     }
     return this.i18n.MSG_NO_ERROR_DATA;
   }

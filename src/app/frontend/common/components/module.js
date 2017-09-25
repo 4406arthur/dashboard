@@ -27,12 +27,14 @@ import graphModule from './graph/module';
 import infoCardModule from './infocard/infocard_module';
 import {labelComponent} from './labels/component';
 import {middleEllipsisComponent} from './middleellipsis/component';
+import {podWarningsComponent} from './podwarnings/component';
 import resourceCardModule from './resourcecard/resourcecard_module';
 import {infoCardComponent} from './resourcedetail/component';
 import {scaleButtonComponent} from './scale/component';
 import {serializedReferenceComponent} from './serializedreference/component';
 import {sparklineComponent} from './sparkline/component';
 import {toggleHiddenTextComponent} from './togglehiddentext/component';
+import uploadFileDirective from './uploadfile/directive';
 import {warningsComponent} from './warnings/component';
 import warnThresholdDirective from './warnthreshold/directive';
 import {zeroStateComponent} from './zerostate/component';
@@ -69,4 +71,6 @@ export default angular
     .component('kdWarnings', warningsComponent)
     .component('kdConditionList', conditionListComponent)
     .component('kdScaleButton', scaleButtonComponent)
-    .directive('kdWarnThreshold', warnThresholdDirective);
+    .component('kdPodWarnings', podWarningsComponent)
+    .directive('kdWarnThreshold', warnThresholdDirective)
+    .directive('kdUploadFile', uploadFileDirective);

@@ -25,7 +25,8 @@ describe('Basic login component', () => {
 
     angular.mock.inject(($componentController) => {
       optionsCtrl = $componentController('kdLoginOptions', {}, {});
-      ctrl = $componentController('kdBasicLogin', {}, {loginOptionsCtrl: optionsCtrl});
+      ctrl = $componentController(
+          'kdBasicLogin', {}, {loginOptionsCtrl: optionsCtrl, onUpdate: () => {}});
     });
   });
 
@@ -39,5 +40,20 @@ describe('Basic login component', () => {
     // then
     expect(ctrl).toBeDefined();
     expect(optionsCtrl.addOption).toHaveBeenCalled();
+  });
+
+  it('should clear input', () => {
+    // given
+    spyOn(ctrl, 'onUpdate');
+    ctrl.username = 'test-user';
+    ctrl.password = 'test-password';
+
+    // when
+    ctrl.clear();
+
+    // then
+    expect(ctrl.username).toEqual('');
+    expect(ctrl.password).toEqual('');
+    expect(ctrl.onUpdate).toHaveBeenCalled();
   });
 });

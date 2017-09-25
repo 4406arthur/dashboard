@@ -25,9 +25,17 @@ class BasicLoginController {
     /** @export {function({loginSpec: !backendApi.LoginSpec})} - Initialized from binding */
     this.onUpdate;
     /** @export {string} */
-    this.username;
+    this.username = '';
     /** @export {string} */
-    this.password;
+    this.password = '';
+  }
+
+  /** @export */
+  clear() {
+    this.username = '';
+    this.password = '';
+    this.onUsernameUpdate();
+    this.onPasswordUpdate();
   }
 
   /** @export */

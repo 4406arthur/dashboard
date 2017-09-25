@@ -14,14 +14,14 @@
 
 import {breadcrumbsConfig} from '../common/components/breadcrumbs/service';
 
-import {stateName, stateUrl} from './state';
+import {stateName, StateParams, stateUrl} from './state';
 
 /**
  * I18n object that defines strings for translation used in this file.
  */
 const i18n = {
-  /** @type {string} @desc Label 'Log in' that appears as a breadcrumbs on the action bar. */
-  MSG_BREADCRUMBS_LOGIN_LABEL: goog.getMsg('Login'),
+  /** @type {string} @desc Label 'Sign in' that appears as a breadcrumbs on the action bar. */
+  MSG_BREADCRUMBS_LOGIN_LABEL: goog.getMsg('Sign in'),
 };
 
 /**
@@ -41,10 +41,20 @@ export default function stateConfig($stateProvider) {
  */
 const config = {
   url: stateUrl,
+  params: new StateParams(),
+  component: 'kdLogin',
   data: {
     [breadcrumbsConfig]: {
       'label': i18n.MSG_BREADCRUMBS_LOGIN_LABEL,
     },
   },
-  component: 'kdLogin',
 };
+
+/**
+ * @param {!angular.$resource} $resource
+ * @return {!angular.$q.Promise}
+ * @ngInject
+ */
+export function authenticationModesResource($resource) {
+  return $resource('api/v1/login/modes').get().$promise;
+}

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {authRequired} from '../../chrome/state';
 import {stateName as errorState} from '../../error/state';
 import {stateName as loginState} from '../../login/state';
 import {stateName as overviewState} from '../../overview/state';
-
 
 /** @final */
 export class AuthService {
@@ -64,7 +64,19 @@ export class AuthService {
    * @private
    */
   setTokenCookie_(token) {
+    // This will only work for HTTPS connection
     this.cookies_.put(this.tokenCookieName_, token, {secure: true});
+    // This will only work when accessing Dashboard at 'localhost' or '127.0.0.1'
+    this.cookies_.put(this.tokenCookieName_, token, {domain: 'localhost'});
+    this.cookies_.put(this.tokenCookieName_, token, {domain: '127.0.0.1'});
+  }
+
+  /**
+   * @return {string}
+   * @private
+   */
+  getTokenCookie_() {
+    return this.cookies_.get(this.tokenCookieName_) || '';
   }
 
   /**
@@ -79,6 +91,7 @@ export class AuthService {
    * Sends a login request to the backend with filled in login spec structure.
    *
    * @param {!backendApi.LoginSpec} loginSpec
+   * @return {!angular.$q.Promise}
    */
   login(loginSpec) {
     let deferred = this.q_.defer();
@@ -98,7 +111,7 @@ export class AuthService {
 
           resource.save(
               loginSpec,
-              (/** @type {!backendApi.LoginResponse} */ response) => {
+              (/** @type {!backendApi.AuthResponse} */ response) => {
                 if (response.jweToken.length !== 0 && response.errors.length === 0) {
                   this.setTokenCookie_(response.jweToken);
                 }
@@ -172,6 +185,56 @@ export class AuthService {
   }
 
   /**
+   * Sends a token refresh request to the backend. In case user is not logged in with token nothing
+   * will happen.
+   *
+   * @return {!angular.$q.Promise}
+   */
+  refreshToken() {
+    let token = this.getTokenCookie_();
+    let deferred = this.q_.defer();
+
+    if (token.length === 0) {
+      deferred.resolve(true);
+      return deferred.promise;
+    }
+
+    /** @type {!angular.$q.Promise} */
+    let csrfTokenPromise = this.csrfTokenService_.getTokenForAction('token');
+    csrfTokenPromise.then(
+        (csrfToken) => {
+          let resource = this.resource_('api/v1/token/refresh', {}, {
+            save: {
+              method: 'POST',
+              headers: {
+                [this.csrfHeaderName_]: csrfToken,
+              },
+            },
+          });
+
+          resource.save(
+              /** !backendApi.TokenRefreshSpec */ {jweToken: token},
+              (/** @type {!backendApi.AuthResponse} */ response) => {
+                if (response.jweToken.length !== 0 && response.errors.length === 0) {
+                  this.setTokenCookie_(response.jweToken);
+                  deferred.resolve(response.jweToken);
+                  return;
+                }
+
+                deferred.resolve(response.errors);
+              },
+              (err) => {
+                deferred.resolve(err);
+              });
+        },
+        (err) => {
+          deferred.resolve(err);
+        });
+
+    return deferred.promise;
+  }
+
+  /**
    * Checks if user is authenticated.
    *
    * @param {!backendApi.LoginStatus} loginStatus
@@ -193,7 +256,7 @@ export class AuthService {
 
   /** @return {!angular.$q.Promise} */
   getLoginStatus() {
-    let token = this.cookies_.get(this.tokenCookieName_) || '';
+    let token = this.getTokenCookie_();
     return this
         .resource_('api/v1/login/status', {}, {
           get: {
@@ -230,8 +293,16 @@ export class AuthService {
    * token has not expired.
    */
   init() {
-    this.transitions_.onBefore({}, (transition) => {
+    let requiresAuth = (state) => {
+      return (state.data && state.data[authRequired] === true);
+    };
+
+    this.transitions_.onBefore({to: requiresAuth}, (transition) => {
       return this.isLoggedIn(transition);
     }, {priority: 10});
+
+    this.transitions_.onBefore({to: requiresAuth}, () => {
+      return this.refreshToken();
+    });
   }
 }

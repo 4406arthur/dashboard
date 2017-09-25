@@ -1459,7 +1459,7 @@ backendApi.LoginSpec;
  *   errors: !Array<!backendApi.Error>
  * }}
  */
-backendApi.LoginResponse;
+backendApi.AuthResponse;
 
 /**
  * @typedef {{
@@ -1469,3 +1469,28 @@ backendApi.LoginResponse;
  * }}
  */
 backendApi.LoginStatus;
+
+/**
+ * @typedef {{
+ *   jweToken: string
+ * }}
+ */
+backendApi.TokenRefreshSpec;
+
+/** @typedef {string} */
+backendApi.AuthenticationMode;
+
+/**
+ * @typedef {{
+ *    modes: !Array<!backendApi.AuthenticationMode>
+ * }}
+ */
+backendApi.LoginModesResponse;
+
+/**
+ * @typedef {{
+ *  TOKEN: !backendApi.AuthenticationMode,
+ *  BASIC: !backendApi.AuthenticationMode,
+ *  }}
+ */
+backendApi.SupportedAuthenticationModes;

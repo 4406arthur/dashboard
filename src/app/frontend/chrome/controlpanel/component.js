@@ -76,17 +76,18 @@ export class ControlPanelController {
    * @export
    */
   isAuthSkipped() {
-    return !this.kdAuthService_.isLoginPageEnabled();
+    return !this.kdAuthService_.isLoginPageEnabled() && !this.loginStatus_.headerPresent;
   }
 
   /**
-   * Checks if user is logged in.
+   * Checks if user is logged in. In case he is logged in using authorization header logout should
+   * not be possible.
    *
    * @return {boolean}
    * @export
    */
   isLoggedIn() {
-    return this.loginStatus_ && (this.loginStatus_.headerPresent || this.loginStatus_.tokenPresent);
+    return this.loginStatus_ && !this.loginStatus_.headerPresent && this.loginStatus_.tokenPresent;
   }
 
   /**
